@@ -52,6 +52,8 @@ class VirtualenvProxy(object):
         self._err_stream = subprocess.STDOUT
 
         self._create_virtualenv()
+        # Downgrade PIP to a compatible version
+        self._downgrade_pip()
 
     def _create_virtualenv(self):
         """Creates the actual virtualenv"""
@@ -66,6 +68,14 @@ class VirtualenvProxy(object):
                         stdout=self._out_stream, stderr=self._err_stream,
                         err_msg="Failed to create virtualenv: {0}".
                                 format(self.path))
+
+    def _downgrade_pip(self):
+        package = 'pip==9.0.3'
+        cmd = [os.path.join(self.path, "bin", "pip"), "install", package]
+        _exec_shell_cmd(
+            cmd, stdout=self._out_stream, stderr=self._err_stream,
+            err_msg="Failed to install {0} package."
+            " Run with --verbose for detailed info.".format(package))
 
     def install_package(self, package):
         """Interface to `pip install SINGLE_PACKAGE`"""
